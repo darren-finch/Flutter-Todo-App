@@ -16,16 +16,17 @@ class TodoListState extends State<TodoList> {
   @override
   Widget build(BuildContext context) {
     MainRepository.repo.getTasks().then(
-          (value) => setState(() => allTasks = value),
+          (value) => setState(
+            () {
+              allTasks = value;
+            },
+          ),
         );
     return ListView.builder(
       padding: const EdgeInsets.all(8.0),
+      itemCount: allTasks.length,
       itemBuilder: (context, index) {
-        if (index < allTasks.length - 1) {
-          return TodoItem(allTasks[index].title, allTasks[index].description);
-        } else {
-          return Container();
-        }
+        return TodoItem(allTasks[index]);
       },
     );
   }
