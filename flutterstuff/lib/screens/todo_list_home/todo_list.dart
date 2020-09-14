@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutterstuff/data/db/main_repository.dart';
 import 'package:flutterstuff/data/models/task.dart';
-import 'package:flutterstuff/screens/todo_item.dart';
+import 'package:flutterstuff/screens/todo_list_home/todo_item.dart';
 
 class TodoList extends StatefulWidget {
   @override

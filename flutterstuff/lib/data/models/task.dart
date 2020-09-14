@@ -1,8 +1,10 @@
 class Task {
   int id;
-  String title;
+  String name;
   String description;
   bool isComplete;
 
-  Task(this.id, this.title, this.description, this.isComplete);
+  static Task defaultTask = Task(-1, "", "", false);
+
+  Task(this.id, this.name, this.description, this.isComplete);
 }
