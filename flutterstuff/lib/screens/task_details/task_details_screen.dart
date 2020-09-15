@@ -18,6 +18,8 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
   TextEditingController _taskNameController = TextEditingController();
   TextEditingController _taskDescriptionController = TextEditingController();
 
+  bool _hasRetrievedTask = false;
+
   @override
   Widget build(BuildContext context) {
     final TaskDetailsArguments arguments =
@@ -25,12 +27,13 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
     final shouldRetrieveTask = arguments.taskId > -1;
 
-    if (shouldRetrieveTask) {
+    if (shouldRetrieveTask && !_hasRetrievedTask) {
       MainRepository.repo.getTask(arguments.taskId).then((value) {
         setState(() {
           _taskData = value;
           _taskNameController.text = _taskData.name;
           _taskDescriptionController.text = _taskData.description;
+          _hasRetrievedTask = true;
         });
       });
     } else {
@@ -44,12 +47,17 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
           GestureDetector(
             child: Icon(Icons.save),
             onTap: () {
-              MainRepository.repo.insertTask(_taskData);
+              _getTaskData();
 
-              Navigator.pushNamed(
-                context,
-                TodoListScreen.routeName,
-              );
+              if (shouldRetrieveTask) {
+                MainRepository.repo.updateTask(_taskData.id, _taskData);
+              } else {
+                print("WT FRICK");
+                MainRepository.repo.insertTask(_taskData);
+              }
+
+              Navigator.of(context)
+                  .pushReplacementNamed(TodoListScreen.routeName);
             },
           )
         ],
@@ -62,32 +70,17 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
             TextField(
               decoration: InputDecoration(hintText: "Task Name"),
               controller: _taskNameController,
-              onChanged: (newText) {
-                if (newText != _taskData.name) {
-                  setState(() {
-                    _taskData.name = newText;
-                  });
-                }
-              },
             ),
             TextField(
-                decoration: InputDecoration(hintText: "Task Description"),
-                controller: _taskDescriptionController,
-                onChanged: (newText) {
-                  if (newText != _taskData.description) {
-                    setState(() {
-                      _taskData.description = newText;
-                    });
-                  }
-                }),
+              decoration: InputDecoration(hintText: "Task Description"),
+              controller: _taskDescriptionController,
+            ),
             Row(children: [
               Checkbox(
                   onChanged: (value) {
-                    if (value != _taskData.isComplete) {
-                      setState(() {
-                        _taskData.isComplete = value;
-                      });
-                    }
+                    setState(() {
+                      _taskData.isComplete = value;
+                    });
                   },
                   value: _taskData.isComplete),
               Text("Is Complete")
@@ -96,6 +89,11 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
         ),
       ),
     );
+  }
+
+  void _getTaskData() {
+    _taskData.name = _taskNameController.text;
+    _taskData.description = _taskDescriptionController.text;
   }
 }
 

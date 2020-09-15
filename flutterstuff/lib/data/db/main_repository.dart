@@ -3,16 +3,9 @@ import 'package:flutterstuff/data/models/task.dart';
 class MainRepository {
   MainRepository._();
 
-  int idCounter = 4;
+  int idCounter = 0;
 
-  static List<Task> _tasks = List.from(
-    {
-      Task(0, "Clean room", "NOOOOO", false),
-      Task(1, "Clean truck", "NOOOOOO", true),
-      Task(2, "Workout", "YASSSSS", true),
-      Task(3, "Go to work", "OMG NOOOOOOOOOOO", false),
-    },
-  );
+  var _tasks = List<Task>();
 
   static final repo = MainRepository._();
 

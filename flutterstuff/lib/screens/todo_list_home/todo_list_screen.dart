@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterstuff/data/db/main_repository.dart';
-import 'package:flutterstuff/data/models/task.dart';
 import 'package:flutterstuff/screens/task_details/task_details_screen.dart';
 import 'package:flutterstuff/screens/todo_list_home/todo_list.dart';
 
