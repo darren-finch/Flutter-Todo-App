@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutterstuff/data/db/main_repository.dart';
-import 'package:flutterstuff/data/models/task.dart';
-import 'package:flutterstuff/screens/todo_list_home/todo_item.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutterstuff/data/db/database.dart';
+import 'package:flutterstuff/screens/task_details/task_details_screen.dart';
+import 'package:provider/provider.dart';
 
 class TodoList extends StatefulWidget {
   @override
@@ -15,19 +17,52 @@ class TodoListState extends State<TodoList> {
 
   @override
   Widget build(BuildContext context) {
-    MainRepository.repo.getTasks().then(
-          (value) => setState(
-            () {
-              allTasks = value;
+    final database = Provider.of<AppDatabase>(context);
+
+    return StreamBuilder(
+      stream: database.watchAllTasks(),
+      builder: (context, AsyncSnapshot<List<Task>> snapshot) {
+        final tasks = snapshot.data ?? List();
+
+        return ListView.builder(
+          itemCount: tasks.length,
+          itemBuilder: (_, index) {
+            return _buildTodoItem(tasks[index], database);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildTodoItem(Task task, AppDatabase database) {
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      secondaryActions: [
+        IconSlideAction(
+          icon: Icons.delete,
+          caption: "Delete",
+          color: Colors.red,
+          onTap: () {
+            database.deleteTask(task);
+          },
+        ),
+      ],
+      child: Card(
+        child: GestureDetector(
+          child: CheckboxListTile(
+            title: Text(task.name),
+            subtitle: Text(task.description),
+            value: task.isComplete,
+            onChanged: (bool value) {
+              database.updateTask(task.copyWith(isComplete: value));
             },
           ),
-        );
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: allTasks.length,
-      itemBuilder: (context, index) {
-        return TodoItem(allTasks[index]);
-      },
+          onTap: () {
+            Navigator.pushNamed(context, TaskDetailsScreen.routeName,
+                arguments: TaskDetailsArguments(task.id));
+          },
+        ),
+      ),
     );
   }
 }

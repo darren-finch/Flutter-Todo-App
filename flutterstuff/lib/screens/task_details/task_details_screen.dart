@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterstuff/data/db/main_repository.dart';
-import 'package:flutterstuff/data/models/task.dart';
+import 'package:flutterstuff/data/db/database.dart';
+import 'package:flutterstuff/data/model/converters.dart';
+import 'package:flutterstuff/data/model/mutable_task.dart';
+import 'package:flutterstuff/misc/constants.dart';
 import 'package:flutterstuff/screens/todo_list_home/todo_list_screen.dart';
+import 'package:provider/provider.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
   static const routeName = '/taskDetails';
@@ -14,7 +17,7 @@ class TaskDetailsScreen extends StatefulWidget {
 }
 
 class TaskDetailsScreenState extends State<TaskDetailsScreen> {
-  Task _taskData;
+  MutableTask _taskData;
   TextEditingController _taskNameController = TextEditingController();
   TextEditingController _taskDescriptionController = TextEditingController();
 
@@ -27,17 +30,19 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
     final shouldRetrieveTask = arguments.taskId > -1;
 
+    final database = Provider.of<AppDatabase>(context);
+
     if (shouldRetrieveTask && !_hasRetrievedTask) {
-      MainRepository.repo.getTask(arguments.taskId).then((value) {
+      database.getSingleTask(arguments.taskId).then((value) {
         setState(() {
-          _taskData = value;
+          _taskData = taskToMutableTask(value);
           _taskNameController.text = _taskData.name;
           _taskDescriptionController.text = _taskData.description;
           _hasRetrievedTask = true;
         });
       });
     } else {
-      _taskData = Task.defaultTask;
+      _taskData = taskToMutableTask(defaultTask);
     }
 
     return Scaffold(
@@ -47,13 +52,12 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
           GestureDetector(
             child: Icon(Icons.save),
             onTap: () {
-              _getTaskData();
+              final currentTaskData = _getTaskData();
 
               if (shouldRetrieveTask) {
-                MainRepository.repo.updateTask(_taskData.id, _taskData);
+                database.updateTask(currentTaskData);
               } else {
-                print("WT FRICK");
-                MainRepository.repo.insertTask(_taskData);
+                database.insertTask(currentTaskData);
               }
 
               Navigator.of(context)
@@ -91,9 +95,12 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
     );
   }
 
-  void _getTaskData() {
-    _taskData.name = _taskNameController.text;
-    _taskData.description = _taskDescriptionController.text;
+  Task _getTaskData() {
+    return Task(
+        id: _taskData.id,
+        name: _taskNameController.text,
+        description: _taskDescriptionController.text,
+        isComplete: _taskData.isComplete);
   }
 }
 
