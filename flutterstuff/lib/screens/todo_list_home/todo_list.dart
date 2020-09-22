@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutterstuff/data/db/database.dart';
 import 'package:flutterstuff/screens/todo_list_home/todo_item.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +16,7 @@ class TodoListState extends State<TodoList> {
 
   @override
   Widget build(BuildContext context) {
-    final database = Provider.of<AppDatabase>(context);
+    AppDatabase database = Provider.of<AppDatabase>(context);
 
     return StreamBuilder(
       stream: database.watchAllTasks(),

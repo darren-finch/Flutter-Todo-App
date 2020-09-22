@@ -1,9 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterstuff/data/db/database.dart';
-import 'package:flutterstuff/data/model/converters.dart';
-import 'package:flutterstuff/data/model/mutable_task.dart';
-import 'package:flutterstuff/misc/constants.dart';
 import 'package:flutterstuff/screens/todo_list_home/todo_list_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -17,9 +14,9 @@ class TaskDetailsScreen extends StatefulWidget {
 }
 
 class TaskDetailsScreenState extends State<TaskDetailsScreen> {
-  MutableTask _taskData;
   TextEditingController _taskNameController = TextEditingController();
   TextEditingController _taskDescriptionController = TextEditingController();
+  bool _isComplete = false;
 
   bool _hasRetrievedTask = false;
 
@@ -35,15 +32,17 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
     if (shouldRetrieveTask && !_hasRetrievedTask) {
       database.getSingleTask(arguments.taskId).then((value) {
         setState(() {
-          _taskData = taskToMutableTask(value);
-          _taskNameController.text = _taskData.name;
-          _taskDescriptionController.text = _taskData.description;
+          _taskNameController.text = value.name;
+          _taskDescriptionController.text = value.description;
+          _isComplete = value.isComplete;
           _hasRetrievedTask = true;
         });
       });
-    } else {
-      _taskData = taskToMutableTask(defaultTask);
     }
+    // if (!shouldRetrieveTask && !_hasRetrievedTask) {
+    //   _taskData = taskToMutableTask(defaultTask);
+    //   _hasRetrievedTask = true;
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -83,10 +82,10 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
               Checkbox(
                   onChanged: (value) {
                     setState(() {
-                      _taskData.isComplete = value;
+                      _isComplete = value;
                     });
                   },
-                  value: _taskData.isComplete),
+                  value: _isComplete),
               Text("Is Complete")
             ])
           ],
@@ -96,11 +95,11 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   Task _getTaskData() {
+    // ignore: missing_required_param
     return Task(
-        id: _taskData.id,
         name: _taskNameController.text,
         description: _taskDescriptionController.text,
-        isComplete: _taskData.isComplete);
+        isComplete: _isComplete);
   }
 }
 

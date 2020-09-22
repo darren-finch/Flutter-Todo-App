@@ -2,13 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutterstuff/data/db/database.dart';
-import 'package:flutterstuff/misc/constants.dart';
 import 'package:flutterstuff/screens/task_details/task_details_screen.dart';
-import 'package:flutterstuff/screens/todo_list_home/todo_list.dart';
 
 class TodoItem extends StatefulWidget {
-  AppDatabase database;
-  Task task;
+  final AppDatabase database;
+  final Task task;
 
   TodoItem(this.task, this.database);
 
