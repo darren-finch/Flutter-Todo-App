@@ -51,7 +51,11 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
           GestureDetector(
             child: Icon(Icons.save),
             onTap: () {
-              final currentTaskData = _getTaskData();
+              final currentTaskData = Task(
+                  id: shouldRetrieveTask ? arguments.taskId : null,
+                  name: _taskNameController.text,
+                  description: _taskDescriptionController.text,
+                  isComplete: _isComplete);
 
               if (shouldRetrieveTask) {
                 database.updateTask(currentTaskData);
@@ -92,14 +96,6 @@ class TaskDetailsScreenState extends State<TaskDetailsScreen> {
         ),
       ),
     );
-  }
-
-  Task _getTaskData() {
-    // ignore: missing_required_param
-    return Task(
-        name: _taskNameController.text,
-        description: _taskDescriptionController.text,
-        isComplete: _isComplete);
   }
 }
 

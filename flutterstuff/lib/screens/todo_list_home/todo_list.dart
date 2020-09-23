@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutterstuff/data/db/database.dart';
-import 'package:flutterstuff/screens/todo_list_home/todo_item.dart';
+import 'package:flutterstuff/screens/task_details/task_details_screen.dart';
 import 'package:provider/provider.dart';
 
 class TodoList extends StatefulWidget {
@@ -34,6 +35,44 @@ class TodoListState extends State<TodoList> {
   }
 
   Widget _buildTodoItem(Task task, AppDatabase database) {
-    return TodoItem(task, database);
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      secondaryActions: [
+        IconSlideAction(
+          icon: Icons.delete,
+          caption: "Delete",
+          color: Colors.red,
+          onTap: () {
+            // ignore: unnecessary_statements
+            _deleteTask() async {
+              database.deleteTask(task);
+            }
+
+            _deleteTask();
+          },
+        ),
+      ],
+      child: Card(
+        child: ListTile(
+          title: Text(task.name),
+          subtitle: Text(task.description),
+          leading: Checkbox(
+            onChanged: (bool value) {
+              // ignore: unnecessary_statements
+              _updateTask() async {
+                database.updateTask(task.copyWith(isComplete: value));
+              }
+
+              _updateTask();
+            },
+            value: task.isComplete,
+          ),
+          onTap: () {
+            Navigator.pushNamed(context, TaskDetailsScreen.routeName,
+                arguments: TaskDetailsArguments(task.id));
+          },
+        ),
+      ),
+    );
   }
 }
